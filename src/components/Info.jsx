@@ -1,4 +1,8 @@
 import styled from 'styled-components';
+import {useDispatch, useSelector} from 'react-redux';
+import { selectNeighbors } from '../store/details/details-selectors';
+import { useEffect } from 'react';
+import { loadNeighborsByBorder } from '../store/details/details-actions';
 
 const Wrapper = styled.section`
   margin-top: 3rem;
@@ -96,13 +100,20 @@ export const Info = (props) => {
     region,
     subregion,
     topLevelDomain,
-    // tld = [],
     currencies = [],
     languages = [],
     borders = [],
     push,
   } = props;
 
+  const dispatch = useDispatch();
+  const neighbors = useSelector(selectNeighbors);
+
+  useEffect(() => {
+    if (borders.length) {
+      dispatch(loadNeighborsByBorder(borders));
+    }
+  }, [borders, dispatch]);
 
   return (
     <Wrapper>
@@ -130,24 +141,19 @@ export const Info = (props) => {
           </List>
           <List>
             <ListItem>
-              <b>Top Level Domain</b>
-              {
-              topLevelDomain.map((d) => (
-                // tld.map((d) => (
+              <b>Top Level Domain</b>{' '}
+              {topLevelDomain.map((d) => (
                 <span key={d}>{d}</span>
-                )
-              )
-              }
+              ))}
             </ListItem>
-            
             <ListItem>
-              <b>Currency</b>
+              <b>Currency</b>{' '}
               {currencies.map((c) => (
                 <span key={c.code}>{c.name} </span>
               ))}
             </ListItem>
             <ListItem>
-              <b>Top Level Domain</b>
+              <b>Top Level Domain</b>{' '}
               {languages.map((l) => (
                 <span key={l.name}>{l.name}</span>
               ))}
@@ -160,9 +166,9 @@ export const Info = (props) => {
             <span>There is no border countries</span>
           ) : (
             <TagGroup>
-              {[].map((b) => (
-                <Tag key={b} onClick={() => push(`/country/${b}`)}>
-                  {b}
+              {neighbors.map((countryName) => (
+                <Tag key={countryName} onClick={() => push(`/country/${countryName}`)}>
+                  {countryName}
                 </Tag>
               ))}
             </TagGroup>
